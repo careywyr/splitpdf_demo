@@ -1,0 +1,22 @@
+{
+	"touchpdf-master/demo/index.htm": {
+		"resources": [
+			"touchpdf-master/jquery.touchSwipe.js",
+			"touchpdf-master/jquery.touchPDF.js",
+			"touchpdf-master/pdf.worker.js",
+			"touchpdf-master/pdf.compatibility.js",
+			"touchpdf-master/img/next.jpg",
+			"touchpdf-master/jquery.mousewheel.js",
+			"touchpdf-master/img/ss.png",
+			"touchpdf-master/demo/mm.pdf",
+			"touchpdf-master/img/pre.jpg",
+			"touchpdf-master/img/redu.jpg",
+			"touchpdf-master/pdf.js",
+			"touchpdf-master/jquery.touchPDF.css",
+			"touchpdf-master/img/up.png",
+			"touchpdf-master/jquery.min.js",
+			"touchpdf-master/jquery.panzoom.js",
+			"touchpdf-master/img/add.jpg"
+		]
+	}
+}

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="misapplication-tap-highlight" content="no" />
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="MobileOptimized" content="320" />
+    <meta charset="UTF-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <title>TouchPDF</title>
+    <link href="../jquery.touchPDF.css" rel="stylesheet" media="screen" />
+    <link type="text/css" href="main.css">
+    <style>
+        body,
+        html {
+            background-color: #404040;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .pdf-button {
+            height: 34px;
+            margin-right: 10px;
+            margin-top: 5px;
+            float: left;
+            z-index: 9999
+        }
+        
+        .pdf-button a {
+            border: none;
+            font-size: 1.2rem;
+            display: block;
+            width: 30px;
+            height: 30px;
+        }
+        
+        .pdf-button a.pdf-next {
+            background-image: url(../img/next.jpg);
+            background-size: 30px 30px;
+            width: 30px;
+            height: 30px;
+            background-image: url(../img/next.jpg);
+        }
+        
+        .pdf-button a.pdf-prev {
+            background: url(../img/pre.jpg) no-repeat;
+            background-size: 30px 30px;
+            width: 30px;
+            height: 30px;
+        }
+        
+        .pdf-button a.pdf-zoomout {
+            background: url(../img/redu.jpg) no-repeat;
+            background-size: 30px 30px;
+            width: 30px;
+            height: 30px;
+        }
+        
+        .pdf-button a.pdf-zoomin {
+            background: url(../img/add.jpg) no-repeat;
+            background-size: 30px 30px;
+            width: 30px;
+            height: 30px;
+        }
+        
+        .pdf-button input {
+            height: 30px;
+            border: none;
+            text-align: center;
+            float: left;
+            width: 30px;
+        }
+        
+        .pdf-button span {
+            font-size: 1.5rem;
+            line-height: 30px;
+            display: block;
+        }
+        
+        .bg {
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 9999;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+        }
+        
+        .topzs {
+            width: 100%;
+            height: auto;
+        }
+        
+        .topzs div {
+            width: 30%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+        
+        .topzs div img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .topzs span {
+            width: 90%;
+            height: auto;
+            margin: 0 auto;
+            color: #fff;
+            font-size: 1.2rem;
+            display: block;
+            font-weight: bold;
+        }
+        
+        .sure {
+            width: 90%;
+            height: 40px;
+            margin: 0 auto;
+            margin-top: 30px;
+        }
+        
+        .sure a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: #fff;
+            background: #f36e21;
+            text-align: center;
+            line-height: 40px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .sszs {
+            width: 100%;
+            height: auto;
+        }
+        
+        .sszs div {
+            width: 50%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+        
+        .sszs div img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .sszs span {
+            width: 90%;
+            height: auto;
+            margin: 0 auto;
+            color: #fff;
+            font-size: 1.2rem;
+            display: block;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="myPDF" style="height: 98%; width: 95%; margin: auto;"></div>
+    <div class="bg" id="bg">
+        <div class="topzs">
+            <div><img src="../img/up.png"></div>
+            <span>可通过输入页码进行翻页</span>
+        </div>
+        <div class="sszs">
+            <div><img src="../img/ss.png"></div>
+            <span>可以左右滑动</span>
+        </div>
+        <div class="sure">
+            <a id="sure" onclick="sure()">确定</a>
+        </div>
+        <div id="pages" ng-disabled="disabled">
+            <input id="totalPage" type="text" value="" />
+        </div>
+    </div>
+
+    <script type="text/javascript" src="../pdf.compatibility.js"></script>
+    <script type="text/javascript" src="../pdf.js"></script>
+    <script type="text/javascript" src="../pdf.worker.js"></script>
+    <script type="text/javascript" src="../jquery.min.js"></script>
+    <script type="text/javascript" src="../jquery.touchSwipe.js"></script>
+    <script type="text/javascript" src="../newtouchpdf.js"></script>
+    <script type="text/javascript" src="../jquery.panzoom.js"></script>
+    <script type="text/javascript" src="../jquery.mousewheel.js"></script>
+    <script>
+        function sure() {
+            $('#bg').css('display', 'none');
+        }
+    </script>
+    <script type="text/javascript">
+        $(function() {
+            querypdf();
+
+        });
+
+        function querypdf() {
+            var pdf = "";
+            $.ajax({
+                url: 'http://127.0.0.1/pdfview/PdfPreviewServlet',
+                data: {
+                    "pageNo": 1
+                },
+                async: true,
+                dataType: 'jsonp',
+                jsonp: 'callbackhome', //传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(默认为:callback)
+                jsonpCallback: "success_jsonpCallback", //自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名
+                contentType: 'application/json; charset=utf-8',
+                success: function(data, status) {
+                    if (status == 'success') {
+                        pdf = data[0].pdf;
+                        $("#myPDF").pdf({
+                            source: pdf,
+                            tabs: []
+                        });
+                        return pdf;
+                    }
+                },
+
+            })
+            return pdf;
+        }
+
+
+        function nextPage() {
+            var totalPage = $("#totalPage").val();
+            //下一页
+            var pageNo = $(".pageNumber").val();
+            var pdf = "";
+            $.ajax({
+                url: 'http://127.0.0.1:8080/pdfview/PdfNextServlet',
+                data: {
+                    "pageNo": pageNo,
+                    "totalPage": totalPage,
+                    "pdf": "output.pdf"
+                },
+                async: true,
+                dataType: 'jsonp',
+                jsonp: 'callbacknext', //传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(默认为:callback)
+                // jsonpCallback: "success1_jsonpCallback", //自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名
+                contentType: 'application/json; charset=utf-8',
+                success: function(data, status) {
+                    if (status == 'success') {
+                        pdf = data[0].pdf;
+                        var aa = pdfDocOld;
+                        aa.destroy();
+                        if ("" != pdf && null != pdf && parseInt(pageNo) < totalPage) {
+                            $(".pdf-outerdiv:last").pdf({
+                                source: pdf
+                            });
+                            pageNo++;
+                            $(".pageNumber").val(pageNo);
+                        }
+                        return pdf;
+                    }
+                },
+
+            })
+            return pdf;
+        }
+
+        function prevPage() {
+            //前一页
+            var pageNo = $(".pageNumber").val();
+            var pdf = "";
+            $.ajax({
+                url: 'http://127.0.0.1:8080/pdfview/PdfPrevServlet',
+                data: {
+                    "pageNo": pageNo,
+                    "totalPage": totalPage,
+                    "pdf": "output.pdf"
+                },
+                async: true,
+                dataType: 'jsonp',
+                jsonp: 'callbackprev', //传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(默认为:callback)
+                // jsonpCallback: "success1_jsonpCallback", //自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名
+                contentType: 'application/json; charset=utf-8',
+                success: function(data, status) {
+                    if (status == 'success') {
+                        pdf = data[0].pdf;
+                        var aa = pdfDocOld;
+                        aa.destroy();
+                        if ("" != pdf && null != pdf && parseInt(pageNo) > 1) {
+                            $(".pdf-outerdiv:last").pdf({
+                                source: pdf
+                            });
+                            pageNo--;
+                            $(".pageNumber").val(pageNo);
+
+                        }
+                        return pdf;
+                    }
+                },
+
+            })
+            return pdf;
+        }
+
+        function turnToPage() {
+            var totalPage = $("#totalPage").val()
+                //前一页
+            var pageNo = $(".pageNumber").val();
+            var pdf = "";
+            $.ajax({
+                url: 'http://127.0.0.1:8080/pdfview/TurnToPageServlet',
+                data: {
+                    "pageNo": pageNo,
+                    "pdf": "output.pdf"
+                },
+                async: true,
+                dataType: 'jsonp',
+                jsonp: 'callbackpage', //传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(默认为:callback)
+                // jsonpCallback: "success1_jsonpCallback", //自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名
+                contentType: 'application/json; charset=utf-8',
+                success: function(data, status) {
+                    if (status == 'success') {
+                        pdf = data[0].pdf;
+                        var aa = pdfDocOld;
+                        aa.destroy();
+                        if ("" != pdf && null != pdf && parseInt(pageNo) <= totalPage && parseInt(pageNo) > 0) {
+                            $(".pdf-outerdiv:last").pdf({
+                                source: pdf
+                            });
+                            $(".pageNumber").val(pageNo);
+                        }
+                        return pdf;
+                    }
+                },
+
+            })
+            return pdf;
+        }
+    </script>
+
+</body>
+
+</html>
